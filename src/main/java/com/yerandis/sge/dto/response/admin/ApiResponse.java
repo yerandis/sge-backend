@@ -1,4 +1,4 @@
-package com.yerandis.sge.dto.response;
+package com.yerandis.sge.dto.response.admin;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

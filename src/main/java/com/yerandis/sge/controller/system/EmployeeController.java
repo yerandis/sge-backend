@@ -1,11 +1,11 @@
-package com.yerandis.sge.controller;
+package com.yerandis.sge.controller.system;
 
-import com.yerandis.sge.dto.request.EmployeeRequest;
-import com.yerandis.sge.dto.response.ApiResponse;
-import com.yerandis.sge.dto.response.EmployeeResponse;
-import com.yerandis.sge.dto.response.PageResponse;
+import com.yerandis.sge.dto.request.system.EmployeeRequest;
+import com.yerandis.sge.dto.response.admin.ApiResponse;
+import com.yerandis.sge.dto.response.system.EmployeeResponse;
+import com.yerandis.sge.dto.response.admin.PageResponse;
 import com.yerandis.sge.dto.enums.EmployeeStatus;
-import com.yerandis.sge.service.EmployeeService;
+import com.yerandis.sge.service.serviceInterface.system.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

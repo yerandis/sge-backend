@@ -1,4 +1,4 @@
-package com.yerandis.sge.dto.request;
+package com.yerandis.sge.dto.request.system;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;

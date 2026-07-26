@@ -1,17 +1,17 @@
-package com.yerandis.sge.service.impl;
+package com.yerandis.sge.service.serviceImpl.system;
 
 import com.yerandis.sge.dto.enums.EmployeeStatus;
-import com.yerandis.sge.dto.request.EmployeeRequest;
-import com.yerandis.sge.dto.response.EmployeeResponse;
-import com.yerandis.sge.dto.response.PageResponse;
-import com.yerandis.sge.entity.Department;
-import com.yerandis.sge.entity.Employee;
+import com.yerandis.sge.dto.request.system.EmployeeRequest;
+import com.yerandis.sge.dto.response.system.EmployeeResponse;
+import com.yerandis.sge.dto.response.admin.PageResponse;
+import com.yerandis.sge.entity.system.Department;
+import com.yerandis.sge.entity.system.Employee;
 import com.yerandis.sge.exception.BusinessException;
 import com.yerandis.sge.exception.ResourceNotFoundException;
-import com.yerandis.sge.mapper.EmployeeMapper;
-import com.yerandis.sge.repository.DepartmentRepository;
-import com.yerandis.sge.repository.EmployeeRepository;
-import com.yerandis.sge.service.EmployeeService;
+import com.yerandis.sge.mapper.system.EmployeeMapper;
+import com.yerandis.sge.repository.system.DepartmentRepository;
+import com.yerandis.sge.repository.system.EmployeeRepository;
+import com.yerandis.sge.service.serviceInterface.system.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -129,6 +129,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return employeeMapper.toResponse(updatedEmployee);
     }
+
 
     @Override
     @Transactional

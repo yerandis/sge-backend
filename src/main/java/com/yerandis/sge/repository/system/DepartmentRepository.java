@@ -1,7 +1,7 @@
-package com.yerandis.sge.repository;
+package com.yerandis.sge.repository.system;
 
 
-import com.yerandis.sge.entity.Department;
+import com.yerandis.sge.entity.system.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;

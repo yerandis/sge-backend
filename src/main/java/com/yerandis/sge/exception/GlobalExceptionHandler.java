@@ -1,6 +1,6 @@
 package com.yerandis.sge.exception;
 
-import com.yerandis.sge.dto.response.ApiResponse;
+import com.yerandis.sge.dto.response.admin.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

@@ -1,10 +1,9 @@
-package com.yerandis.sge.entity;
+package com.yerandis.sge.entity.system;
 
 import com.yerandis.sge.dto.enums.EmployeeStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.hibernate.annotations.UuidGenerator;

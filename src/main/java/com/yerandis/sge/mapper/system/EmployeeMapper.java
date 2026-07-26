@@ -1,11 +1,11 @@
-package com.yerandis.sge.mapper;
+package com.yerandis.sge.mapper.system;
 
 import com.yerandis.sge.dto.enums.EmployeeStatus;
-import com.yerandis.sge.dto.request.EmployeeRequest;
-import com.yerandis.sge.dto.response.DepartmentResponse;
-import com.yerandis.sge.dto.response.EmployeeResponse;
-import com.yerandis.sge.entity.Department;
-import com.yerandis.sge.entity.Employee;
+import com.yerandis.sge.dto.request.system.EmployeeRequest;
+import com.yerandis.sge.dto.response.system.DepartmentResponse;
+import com.yerandis.sge.dto.response.system.EmployeeResponse;
+import com.yerandis.sge.entity.system.Department;
+import com.yerandis.sge.entity.system.Employee;
 import org.springframework.stereotype.Component;
 
 /**

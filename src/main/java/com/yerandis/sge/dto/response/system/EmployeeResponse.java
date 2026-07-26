@@ -1,4 +1,4 @@
-package com.yerandis.sge.dto.response;
+package com.yerandis.sge.dto.response.system;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

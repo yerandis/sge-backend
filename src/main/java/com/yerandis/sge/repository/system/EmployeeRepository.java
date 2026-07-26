@@ -1,7 +1,7 @@
-package com.yerandis.sge.repository;
+package com.yerandis.sge.repository.system;
 
 import com.yerandis.sge.dto.enums.EmployeeStatus;
-import com.yerandis.sge.entity.Employee;
+import com.yerandis.sge.entity.system.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository

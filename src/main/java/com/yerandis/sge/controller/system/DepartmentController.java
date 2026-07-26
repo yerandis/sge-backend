@@ -1,10 +1,9 @@
-package com.yerandis.sge.controller;
+package com.yerandis.sge.controller.system;
 
 
-import com.yerandis.sge.dto.response.ApiResponse;
-import com.yerandis.sge.dto.response.DepartmentResponse;
-import com.yerandis.sge.entity.Department;
-import com.yerandis.sge.repository.DepartmentRepository;
+import com.yerandis.sge.dto.response.admin.ApiResponse;
+import com.yerandis.sge.dto.response.system.DepartmentResponse;
+import com.yerandis.sge.repository.system.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
