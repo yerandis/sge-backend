@@ -62,7 +62,7 @@ public class DepartmentController {
      * extrae el id de la URL
      */
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<DepartmentResponse>> findById(@PathVariable("id")UUID id){
 
         DepartmentResponse response = departmentService.findById(id);
@@ -92,7 +92,7 @@ public class DepartmentController {
      * Actualizacion
      *
      * */
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DepartmentResponse>> update(
             @PathVariable("id") UUID id,
             @Valid @RequestBody DepartmentRequest request
@@ -106,7 +106,7 @@ public class DepartmentController {
      * DELETE /api/v1/department/{id}
      *
      * */
-    @DeleteMapping
+    @DeleteMapping("{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable ("id") UUID id){
 
         departmentService.delete(id);
