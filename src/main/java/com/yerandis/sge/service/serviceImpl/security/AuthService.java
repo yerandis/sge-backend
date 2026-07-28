@@ -51,29 +51,43 @@ public class AuthService implements AuthServiceApp {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        try {
-            /**
-             * authenticate() delega en DaoAuthenticationProvider (ApplicationConfig):
-             * 1. Llama userDetailsService.loadUserByUsername(username)
-             * 2. Compara la contraseña con BCrypt
-             * 3. Si falla → BadCredentialsException
-             */
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
-                            request.getPassword()
-                    )
-            );
-        } catch (AuthenticationException e) {
-            // Mensaje genérico: no revelar si el usuario existe o no
-            throw new BusinessException("Credenciales inválidas");
-        }
+/***                Error de autenticacion                           ***/
+//        Error de credenciales q hay q resolver (sucede cuando habilito este try/catch):
+//        Error: org.springframework.security.authentication.BadCredentialsException: Bad credentials
+//        2026-07-26T17:59:56.341-04:00  WARN 19228 --- [sge-backend] [nio-8080-exec-2]
+//        .m.m.a.ExceptionHandlerExceptionResolver :
+//        Resolved [com.yerandis.sge.exception.BusinessException: Credenciales inv�lidas]
+
+
+//        try {
+//            /**
+//             * authenticate() delega en DaoAuthenticationProvider (ApplicationConfig):
+//             * 1. Llama userDetailsService.loadUserByUsername(username)
+//             * 2. Compara la contraseña con BCrypt
+//             * 3. Si falla → BadCredentialsException
+//             */
+//
+//            System.out.println("username = " + request.getUsername());
+//            System.out.println("password = " + request.getPassword());
+//            authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(
+//                            request.getUsername(),
+//                            request.getPassword()
+//                    )
+//            );
+//        } catch (AuthenticationException e) {
+//            // Mensaje genérico: no revelar si el usuario existe o no
+//            System.err.println("Error: " + e);
+//            throw new BusinessException("Credenciales inválidas");
+//        }
 
         // Cargar el usuario para generar el token con sus datos completos
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         User user = (User) userDetails;
 
         user.setLastLogin(LocalDateTime.now());
+        System.out.println("user = " + user.getUsername());
+        System.out.println("role = " + user.getRole());
         userRepository.save(user);
 
         return buildAuthResponse(user);

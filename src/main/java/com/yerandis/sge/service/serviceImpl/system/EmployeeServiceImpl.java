@@ -105,7 +105,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponse update(UUID id, EmployeeRequest request) {
         // Verificar que el empleado existe
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Empleado", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado: ", id));
 
         // Si cambia el email, verificar que no lo usa otro empleado
         String newEmail = request.getEmail().trim().toLowerCase();
@@ -118,7 +118,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // Verificar que el departamento existe
         Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Departamento", request.getDepartmentId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento ", request.getDepartmentId()));
 
         // Actualizar los campos de la entidad existente
         employeeMapper.updateEntityFromRequest(request, employee);
@@ -129,7 +129,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return employeeMapper.toResponse(updatedEmployee);
     }
-
 
     @Override
     @Transactional

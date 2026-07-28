@@ -83,7 +83,7 @@ public class EmployeeController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<EmployeeResponse>> findById(@PathVariable UUID id) {
         EmployeeResponse employee = employeeService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success("Empleado obtenido exitosamente", employee));
+        return ResponseEntity.ok(ApiResponse.success("Empleado obtenido exitosamente ", employee));
     }
 
     /**
