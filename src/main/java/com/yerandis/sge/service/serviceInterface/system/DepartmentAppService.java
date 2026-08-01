@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Map;
 import java.util.UUID;
 
-public interface DepartmentService {
+public interface DepartmentAppService {
 
     PageResponse<DepartmentResponse> findAll(String search, Pageable pageable);
 

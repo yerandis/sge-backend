@@ -10,12 +10,9 @@ import com.yerandis.sge.exception.BusinessException;
 import com.yerandis.sge.repository.system.EmployeeRepository;
 import com.yerandis.sge.repository.admin.UserRepository;
 import com.yerandis.sge.security.JwtService;
-import com.yerandis.sge.service.serviceInterface.security.AuthServiceApp;
+import com.yerandis.sge.service.serviceInterface.security.AuthAppService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,7 +37,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class AuthService implements AuthServiceApp {
+public class AuthService implements AuthAppService {
 
     private final UserRepository       userRepository;
     private final EmployeeRepository   employeeRepository;

@@ -5,7 +5,7 @@ import com.yerandis.sge.dto.request.security.RegisterRequest;
 import com.yerandis.sge.dto.response.security.AuthResponse;
 import jakarta.validation.Valid;
 
-public interface AuthServiceApp {
+public interface AuthAppService {
     AuthResponse login(@Valid LoginRequest request);
 
     AuthResponse register(@Valid RegisterRequest request);

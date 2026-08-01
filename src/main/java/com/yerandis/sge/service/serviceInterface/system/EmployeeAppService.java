@@ -20,7 +20,7 @@ import java.util.UUID;
  * Comparación Java: igual que definir una interface en Spring para separar
  * el contrato de la implementación.
  */
-public interface EmployeeService {
+public interface EmployeeAppService {
 
     PageResponse<EmployeeResponse> findAll(
             String search,

@@ -5,7 +5,8 @@ import com.yerandis.sge.dto.response.admin.ApiResponse;
 import com.yerandis.sge.dto.response.system.EmployeeResponse;
 import com.yerandis.sge.dto.response.admin.PageResponse;
 import com.yerandis.sge.dto.enums.EmployeeStatus;
-import com.yerandis.sge.service.serviceInterface.system.EmployeeService;
+import com.yerandis.sge.service.serviceInterface.notification.NotificationAppService;
+import com.yerandis.sge.service.serviceInterface.system.EmployeeAppService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +34,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmployeeController {
 
-    private final EmployeeService employeeService;
+    private final EmployeeAppService employeeAppService;
+
 
     /**
      * GET /api/v1/employees
@@ -68,7 +70,7 @@ public class EmployeeController {
             }
         }
 
-        PageResponse<EmployeeResponse> result = employeeService.findAll(
+        PageResponse<EmployeeResponse> result = employeeAppService.findAll(
                 search, employeeStatus, departmentId, pageable
         );
 
@@ -82,7 +84,7 @@ public class EmployeeController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<EmployeeResponse>> findById(@PathVariable UUID id) {
-        EmployeeResponse employee = employeeService.findById(id);
+        EmployeeResponse employee = employeeAppService.findById(id);
         return ResponseEntity.ok(ApiResponse.success("Empleado obtenido exitosamente ", employee));
     }
 
@@ -98,7 +100,7 @@ public class EmployeeController {
     public ResponseEntity<ApiResponse<EmployeeResponse>> create(
             @Valid @RequestBody EmployeeRequest request) {
 
-        EmployeeResponse employee = employeeService.create(request);
+        EmployeeResponse employee = employeeAppService.create(request);
         // 201 Created: el recurso fue creado exitosamente
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Empleado creado exitosamente", employee));
@@ -113,7 +115,7 @@ public class EmployeeController {
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeRequest request) {
 
-        EmployeeResponse employee = employeeService.update(id, request);
+        EmployeeResponse employee = employeeAppService.update(id, request);
         return ResponseEntity.ok(ApiResponse.success("Empleado actualizado exitosamente", employee));
     }
 
@@ -123,7 +125,7 @@ public class EmployeeController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
-        employeeService.delete(id);
+        employeeAppService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -132,7 +134,7 @@ public class EmployeeController {
      */
     @GetMapping("/dashboard/stats")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats() {
-        Map<String, Long> stats = employeeService.getDashboardStats();
+        Map<String, Long> stats = employeeAppService.getDashboardStats();
         return ResponseEntity.ok(ApiResponse.success("Estadísticas obtenidas", stats));
     }
 }

@@ -5,8 +5,7 @@ import com.yerandis.sge.dto.request.system.DepartmentRequest;
 import com.yerandis.sge.dto.response.admin.ApiResponse;
 import com.yerandis.sge.dto.response.admin.PageResponse;
 import com.yerandis.sge.dto.response.system.DepartmentResponse;
-import com.yerandis.sge.repository.system.DepartmentRepository;
-import com.yerandis.sge.service.serviceInterface.system.DepartmentService;
+import com.yerandis.sge.service.serviceInterface.system.DepartmentAppService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DepartmentController {
 
-    private final DepartmentService departmentService;
+    private final DepartmentAppService departmentAppService;
 
 //    @GetMapping
 //    public ResponseEntity<ApiResponse<List<DepartmentResponse>>> findAll() {
@@ -51,7 +49,7 @@ public class DepartmentController {
                 : Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        PageResponse<DepartmentResponse> result = departmentService.findAll(search, pageable);
+        PageResponse<DepartmentResponse> result = departmentAppService.findAll(search, pageable);
 
         return ResponseEntity.ok(ApiResponse.success("Departamentos obtenidos exitosamente: ", result));
     }
@@ -65,7 +63,7 @@ public class DepartmentController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<DepartmentResponse>> findById(@PathVariable("id")UUID id){
 
-        DepartmentResponse response = departmentService.findById(id);
+        DepartmentResponse response = departmentAppService.findById(id);
         return ResponseEntity.ok(ApiResponse.success("Departamento obtenido exitosamente: ", response));
     }
 
@@ -81,7 +79,7 @@ public class DepartmentController {
     public ResponseEntity<ApiResponse<DepartmentResponse>> create(
             @Valid @RequestBody DepartmentRequest request){
 
-        DepartmentResponse response = departmentService.create(request);
+        DepartmentResponse response = departmentAppService.create(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Departamento creado exitosamente: ", response));
     }
@@ -97,7 +95,7 @@ public class DepartmentController {
             @PathVariable("id") UUID id,
             @Valid @RequestBody DepartmentRequest request
     ){
-        DepartmentResponse response = departmentService.update(id, request);
+        DepartmentResponse response = departmentAppService.update(id, request);
         return ResponseEntity.ok(ApiResponse.success("Departamento actualizado exitosamente: ", response));
     }
 
@@ -109,7 +107,7 @@ public class DepartmentController {
     @DeleteMapping("{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable ("id") UUID id){
 
-        departmentService.delete(id);
+        departmentAppService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -119,7 +117,7 @@ public class DepartmentController {
      * */
     @GetMapping("dashboard/stats")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats(){
-        Map<String, Long> stats = departmentService.getDashboardStats();
+        Map<String, Long> stats = departmentAppService.getDashboardStats();
         return ResponseEntity.ok(ApiResponse.success("Estadisticas obtenidas: ", stats));
     }
 }

@@ -1,9 +1,11 @@
 package com.yerandis.sge.service.serviceImpl.system;
 
 import com.yerandis.sge.dto.enums.EmployeeStatus;
+import com.yerandis.sge.dto.enums.NotificationType;
 import com.yerandis.sge.dto.request.system.EmployeeRequest;
 import com.yerandis.sge.dto.response.system.EmployeeResponse;
 import com.yerandis.sge.dto.response.admin.PageResponse;
+import com.yerandis.sge.entity.notification.Notification;
 import com.yerandis.sge.entity.system.Department;
 import com.yerandis.sge.entity.system.Employee;
 import com.yerandis.sge.exception.BusinessException;
@@ -11,7 +13,9 @@ import com.yerandis.sge.exception.ResourceNotFoundException;
 import com.yerandis.sge.mapper.system.EmployeeMapper;
 import com.yerandis.sge.repository.system.DepartmentRepository;
 import com.yerandis.sge.repository.system.EmployeeRepository;
-import com.yerandis.sge.service.serviceInterface.system.EmployeeService;
+import com.yerandis.sge.service.serviceImpl.notification.NotificationService;
+import com.yerandis.sge.service.serviceInterface.notification.NotificationAppService;
+import com.yerandis.sge.service.serviceInterface.system.EmployeeAppService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,11 +38,12 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class EmployeeServiceImpl implements EmployeeService {
+public class EmployeeService implements EmployeeAppService {
 
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final EmployeeMapper employeeMapper;
+    private final NotificationService notificationService;
 
     /**
      * @Transactional(readOnly = true): indica que este método no modifica datos.
@@ -96,6 +101,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         // Guardar en la BD
         Employee savedEmployee = employeeRepository.save(employee);
 
+        // ← NUEVO: publicar notificación
+        notificationService.publishEmployeeEvent(
+                NotificationType.EMPLOYEE_CREATED,
+                savedEmployee.getFirstName() + " " + savedEmployee.getLastName(),
+                savedEmployee.getId()
+        );
+
         // Convertir Entity → DTO de respuesta
         return employeeMapper.toResponse(savedEmployee);
     }
@@ -127,6 +139,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         // save() en una entidad existente (tiene ID) → hace UPDATE, no INSERT
         Employee updatedEmployee = employeeRepository.save(employee);
 
+        notificationService.publishEmployeeEvent(
+                NotificationType.EMPLOYEE_UPDATED,
+                updatedEmployee.getFirstName() + " " + updatedEmployee.getLastName(),
+                updatedEmployee.getId()
+        );
+
         return employeeMapper.toResponse(updatedEmployee);
     }
 
@@ -136,7 +154,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (!employeeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Empleado", id);
         }
+
+        Employee toDelete = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado", id));
+        String fullName = toDelete.getFirstName() + " " + toDelete.getLastName();
         employeeRepository.deleteById(id);
+
+        notificationService.publishEmployeeEvent(NotificationType.EMPLOYEE_DELETED, fullName, id);
     }
 
     @Override

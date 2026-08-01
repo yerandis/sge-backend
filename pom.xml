@@ -112,6 +112,15 @@
             <version>0.12.5</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- WebSocket con STOMP -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+        <!-- Para usar SockJS (fallback para navegadores sin WebSocket nativo) -->
+        <!-- Ya incluido en spring-boot-starter-websocket -->
     </dependencies>
 
     <build>

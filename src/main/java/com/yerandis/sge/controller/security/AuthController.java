@@ -4,8 +4,7 @@ import com.yerandis.sge.dto.request.security.LoginRequest;
 import com.yerandis.sge.dto.request.security.RegisterRequest;
 import com.yerandis.sge.dto.response.admin.ApiResponse;
 import com.yerandis.sge.dto.response.security.AuthResponse;
-import com.yerandis.sge.service.serviceImpl.security.AuthService;
-import com.yerandis.sge.service.serviceInterface.security.AuthServiceApp;
+import com.yerandis.sge.service.serviceInterface.security.AuthAppService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthServiceApp authServiceApp;
+    private final AuthAppService authAppService;
 
     /**
      * POST /api/v1/auth/login
@@ -28,7 +27,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request) {
 
-        AuthResponse response = authServiceApp.login(request);
+        AuthResponse response = authAppService.login(request);
         return ResponseEntity.ok(ApiResponse.success("Login exitoso", response));
     }
 
@@ -40,7 +39,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request) {
 
-        AuthResponse response = authServiceApp.register(request);
+        AuthResponse response = authAppService.register(request);
         return ResponseEntity.ok(ApiResponse.success("Usuario registrado exitosamente: ", response));
     }
 
@@ -57,7 +56,7 @@ public class AuthController {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("El refresh token es obligatorio"));
         }
-        AuthResponse response = authServiceApp.refreshToken(refreshToken);
+        AuthResponse response = authAppService.refreshToken(refreshToken);
         return ResponseEntity.ok(ApiResponse.success("Token renovado", response));
     }
 

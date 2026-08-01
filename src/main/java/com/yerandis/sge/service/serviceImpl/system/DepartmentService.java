@@ -8,7 +8,7 @@ import com.yerandis.sge.exception.BusinessException;
 import com.yerandis.sge.exception.ResourceNotFoundException;
 import com.yerandis.sge.mapper.system.DepartmentMapper;
 import com.yerandis.sge.repository.system.DepartmentRepository;
-import com.yerandis.sge.service.serviceInterface.system.DepartmentService;
+import com.yerandis.sge.service.serviceInterface.system.DepartmentAppService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class DepartmentServiceImpl implements DepartmentService {
+public class DepartmentService implements DepartmentAppService {
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper     departmentMapper;
