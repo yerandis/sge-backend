@@ -95,6 +95,7 @@ public class NotificationService implements NotificationAppService {
 
         // 1. Persistir en base de datos
         Notification notification = Notification.builder()
+//                .id(UUID.randomUUID())
                 .type(type)
                 .title(title)
                 .message(message)
@@ -103,10 +104,13 @@ public class NotificationService implements NotificationAppService {
                 .triggeredBy(triggeredBy)
                 .build();
 
-        notification = notificationRepository.save(notification);
+
+        System.out.println(">>>>>  notification title: " + notification.getTitle());
+        Notification notificationSaved = notificationRepository.save(notification);
+        System.out.println(">>>>>  notification id: " + notificationSaved.getId());
 
         // 2. Convertir a DTO
-        NotificationDto dto = toDto(notification);
+        NotificationDto dto = toDto(notificationSaved);
 
         // 3. Publicar por WebSocket a todos los clientes suscritos
         try {

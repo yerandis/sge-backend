@@ -85,14 +85,13 @@ public class EmployeeService implements EmployeeAppService {
     public EmployeeResponse create(EmployeeRequest request) {
         // Validación de negocio: el email debe ser único
         if (employeeRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
-            throw new BusinessException(
-                    "Ya existe un empleado con el email: " + request.getEmail()
+            throw new BusinessException("Ya existe un empleado con el email: " + request.getEmail()
             );
         }
 
         // Verificar que el departamento existe
         Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Departamento", request.getDepartmentId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Departamento: ", request.getDepartmentId()));
 
         // Convertir DTO → Entity
         Employee employee = employeeMapper.toEntity(request);

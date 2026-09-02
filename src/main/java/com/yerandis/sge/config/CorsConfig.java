@@ -28,6 +28,10 @@ public class CorsConfig {
                 ? new UrlBasedCorsConfigurationSource().getCorsConfigurations().getOrDefault("/**", config)
                 : config);
 
+        // WebSocket — SockJS hace peticiones HTTP a /ws/info, /ws/iframe, etc.
+        // antes de establecer la conexión WebSocket real
+//        source.registerCorsConfiguration("/ws/**", config);
+
         // Forma simple y correcta:
         UrlBasedCorsConfigurationSource finalSource = new UrlBasedCorsConfigurationSource();
         finalSource.registerCorsConfiguration("/api/**", config);

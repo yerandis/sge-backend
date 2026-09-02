@@ -51,7 +51,7 @@ public class EmployeeController {
             @RequestParam(required = false) UUID departmentId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "lastName") String sortBy,
+            @RequestParam(defaultValue = "firstName") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
         // Construir el objeto Pageable con paginación y ordenamiento
