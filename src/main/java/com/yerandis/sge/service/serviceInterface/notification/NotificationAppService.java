@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface NotificationAppService {
 
-    void publishEmployeeEvent(NotificationType type, String employeeName, UUID employeeId);
+    void publishEvent(NotificationType type, String title, String employeeName, UUID employeeId, String entityType);
     void publish(NotificationType type, String title, String message, String entityType, UUID entityId, String triggeredBy);
     PageResponse<NotificationDto> getAll(int page, int size);
     long countUnread();

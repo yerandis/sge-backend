@@ -1,5 +1,6 @@
 package com.yerandis.sge.service.serviceImpl.admin;
 
+import com.yerandis.sge.dto.enums.NotificationType;
 import com.yerandis.sge.dto.request.admin.RoleRequest;
 import com.yerandis.sge.dto.response.admin.PermissionResponse;
 import com.yerandis.sge.dto.response.admin.RoleResponse;
@@ -7,8 +8,10 @@ import com.yerandis.sge.entity.admin.Permission;
 import com.yerandis.sge.entity.admin.Role;
 import com.yerandis.sge.exception.BusinessException;
 import com.yerandis.sge.exception.ResourceNotFoundException;
+import com.yerandis.sge.mapper.admin.RoleMapper;
 import com.yerandis.sge.repository.admin.PermissionRepository;
 import com.yerandis.sge.repository.admin.RoleRepository;
+import com.yerandis.sge.service.serviceImpl.notification.NotificationService;
 import com.yerandis.sge.service.serviceInterface.admin.RoleAppService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,30 +26,34 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RoleService implements RoleAppService {
 
+    private static final String ENTITY_TYPE = "Rol";
+
     private final RoleRepository       roleRepository;
     private final PermissionRepository permissionRepository;
+    private final NotificationService  notificationService;
+    private final RoleMapper           roleMapper;
 
     // ── Roles ────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAuthority('ROLE_READ')")
+//    @PreAuthorize("hasAuthority('ROLE_READ')")
     public List<RoleResponse> findAllRoles() {
         return roleRepository.findAllWithPermissions()
                 .stream()
-                .map(this::toRoleResponse)
+                .map(roleMapper::toRoleResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAuthority('ROLE_READ')")
+//    @PreAuthorize("hasAuthority('ROLE_READ')")
     public RoleResponse findRoleById(UUID id) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rol", id));
-        return toRoleResponse(role);
+        return roleMapper.toRoleResponse(role);
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('ROLE_CREATE')")
+//    @PreAuthorize("hasAuthority('ROLE_CREATE')")
     public RoleResponse createRole(RoleRequest request) {
         // Verificar nombre único
         if (roleRepository.existsByName(request.getName())) {
@@ -73,11 +80,21 @@ public class RoleService implements RoleAppService {
                 .permissions(new HashSet<>(permissions))
                 .build();
 
-        return toRoleResponse(roleRepository.save(role));
+        Role savedRole = roleRepository.save(role);
+
+        // ← NUEVO: publicar notificación
+        notificationService.publishEvent(
+                NotificationType.CREATED,
+                "Nuevo rol registrado",
+                savedRole.getName(),
+                savedRole.getId(), ENTITY_TYPE
+        );
+
+        return roleMapper.toRoleResponse(savedRole);
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
+//    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     public RoleResponse updateRole(UUID id, RoleRequest request) {
 
         Role role = roleRepository.findById(id)
@@ -105,11 +122,20 @@ public class RoleService implements RoleAppService {
         role.setDefault(request.isDefault());
         role.setPermissions(new HashSet<>(permissions));
 
-        return toRoleResponse(roleRepository.save(role));
+        Role updatedRole = roleRepository.save(role);
+
+        notificationService.publishEvent(
+                NotificationType.UPDATED,
+                "Rol actualizado",
+                updatedRole.getName(),
+                updatedRole.getId(), ENTITY_TYPE
+        );
+
+        return roleMapper.toRoleResponse(updatedRole);
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('ROLE_DELETE')")
+//    @PreAuthorize("hasAuthority('ROLE_DELETE')")
     public void deleteRole(UUID id) {
 
         Role role = roleRepository.findById(id)
@@ -121,53 +147,22 @@ public class RoleService implements RoleAppService {
 //                    "El rol '" + role.getName() + "' es un rol del sistema y no puede eliminarse."
 //            );
 //        }
-
+        String roleName = role.getName();
         roleRepository.deleteById(id);
+        notificationService.publishEvent(
+                NotificationType.DELETED,
+                "Rol eliminado",
+                roleName, id, ENTITY_TYPE);
     }
 
     // ── Permisos ─────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAuthority('ROLE_READ')")
+//    @PreAuthorize("hasAuthority('ROLE_READ')")
     public List<PermissionResponse> findAllPermissions() {
         return permissionRepository.findAllByOrderByModuleAscNameAsc()
                 .stream()
-                .map(this::toPermissionResponse)
+                .map(roleMapper::toPermissionResponse)
                 .toList();
-    }
-
-    // ── Mappers privados ──────────────────────────────────────────
-
-    private RoleResponse toRoleResponse(Role role) {
-        List<PermissionResponse> perms = role.getPermissions()
-                .stream()
-                .sorted((a, b) -> {
-                    int cmp = a.getModule().compareTo(b.getModule());
-                    return cmp != 0 ? cmp : a.getName().compareTo(b.getName());
-                })
-                .map(this::toPermissionResponse)
-                .toList();
-
-        return RoleResponse.builder()
-                .id(role.getId())
-                .name(role.getName())
-                .description(role.getDescription())
-                .isDefault(role.isDefault())
-//                .isSystem(role.isSystem())
-                .permissions(perms)
-                .permissionCount(perms.size())
-                .createdAt(role.getCreatedAt())
-                .updatedAt(role.getUpdatedAt())
-                .build();
-    }
-
-    private PermissionResponse toPermissionResponse(Permission p) {
-        return PermissionResponse.builder()
-                .id(p.getId())
-                .code(p.getCode())
-                .name(p.getName())
-                .description(p.getDescription())
-                .module(p.getModule())
-                .build();
     }
 }

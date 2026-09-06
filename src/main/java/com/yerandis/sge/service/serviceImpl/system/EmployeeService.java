@@ -40,6 +40,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmployeeService implements EmployeeAppService {
 
+    private static final String ENTITY_TYPE = "Employee";
+
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final EmployeeMapper employeeMapper;
@@ -101,10 +103,11 @@ public class EmployeeService implements EmployeeAppService {
         Employee savedEmployee = employeeRepository.save(employee);
 
         // ← NUEVO: publicar notificación
-        notificationService.publishEmployeeEvent(
-                NotificationType.EMPLOYEE_CREATED,
+        notificationService.publishEvent(
+                NotificationType.CREATED,
+                "Nuevo empleado registrado",
                 savedEmployee.getFirstName() + " " + savedEmployee.getLastName(),
-                savedEmployee.getId()
+                savedEmployee.getId(), ENTITY_TYPE
         );
 
         // Convertir Entity → DTO de respuesta
@@ -138,10 +141,11 @@ public class EmployeeService implements EmployeeAppService {
         // save() en una entidad existente (tiene ID) → hace UPDATE, no INSERT
         Employee updatedEmployee = employeeRepository.save(employee);
 
-        notificationService.publishEmployeeEvent(
-                NotificationType.EMPLOYEE_UPDATED,
+        notificationService.publishEvent(
+                NotificationType.UPDATED,
+                "Empleado actualizado",
                 updatedEmployee.getFirstName() + " " + updatedEmployee.getLastName(),
-                updatedEmployee.getId()
+                updatedEmployee.getId(), ENTITY_TYPE
         );
 
         return employeeMapper.toResponse(updatedEmployee);
@@ -159,7 +163,10 @@ public class EmployeeService implements EmployeeAppService {
         String fullName = toDelete.getFirstName() + " " + toDelete.getLastName();
         employeeRepository.deleteById(id);
 
-        notificationService.publishEmployeeEvent(NotificationType.EMPLOYEE_DELETED, fullName, id);
+        notificationService.publishEvent(
+                NotificationType.DELETED,
+                "Empleado eliminado",
+                fullName, id, ENTITY_TYPE);
     }
 
     @Override

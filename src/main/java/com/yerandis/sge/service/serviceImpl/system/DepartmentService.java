@@ -1,5 +1,6 @@
 package com.yerandis.sge.service.serviceImpl.system;
 
+import com.yerandis.sge.dto.enums.NotificationType;
 import com.yerandis.sge.dto.request.system.DepartmentRequest;
 import com.yerandis.sge.dto.response.admin.PageResponse;
 import com.yerandis.sge.dto.response.system.DepartmentResponse;
@@ -23,6 +24,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class DepartmentService implements DepartmentAppService {
+
+    private static final String ENTITY_TYPE = "Department";
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper     departmentMapper;
@@ -61,6 +64,12 @@ public class DepartmentService implements DepartmentAppService {
         Department savedDepartment = departmentRepository.save(department);
 
         // ← NUEVO: publicar notificación
+        notificationService.publishEvent(
+                NotificationType.CREATED,
+                "Nuevo departamento registrado",
+                savedDepartment.getName(),
+                savedDepartment.getId(), ENTITY_TYPE
+        );
 
         return departmentMapper.toResponse(savedDepartment);
 
@@ -79,6 +88,13 @@ public class DepartmentService implements DepartmentAppService {
         departmentMapper.updateEntityFromRequest(request, department);
         Department updateDepartment = departmentRepository.save(department);
 
+        notificationService.publishEvent(
+                NotificationType.UPDATED,
+                "Departamento actualizado",
+                updateDepartment.getName(),
+                updateDepartment.getId(), ENTITY_TYPE
+        );
+
         return departmentMapper.toResponse(updateDepartment);
 //        return departmentMapper.toResponse(departmentRepository.save(department));
     }
@@ -89,7 +105,16 @@ public class DepartmentService implements DepartmentAppService {
         if (!departmentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Departamento: ", id);
         }
+
+        Department toDelete = departmentRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Departamento", id));
+        String departmentName = toDelete.getName();
         departmentRepository.deleteById(id);
+
+        notificationService.publishEvent(
+                NotificationType.DELETED,
+                "Departamento eliminado",
+                departmentName, id, ENTITY_TYPE);
     }
 
     @Override

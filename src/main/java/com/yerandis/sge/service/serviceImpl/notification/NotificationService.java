@@ -54,35 +54,35 @@ public class NotificationService implements NotificationAppService {
      */
     @Transactional
     @Override
-    public void publishEmployeeEvent(NotificationType type, String employeeName, UUID employeeId) {
+    public void publishEvent(NotificationType type, String title, String employeeName, UUID employeeId, String entityType) {
 
         String triggeredBy = getCurrentUsername();
-        String title;
+//        String title;
         String message;
 
         switch (type) {
-            case EMPLOYEE_CREATED -> {
-                title = "Nuevo empleado registrado";
+            case CREATED -> {
+//                title = "Nuevo empleado registrado";
                 message = String.format("%s ha sido añadido al sistema por %s",
                         employeeName, triggeredBy);
             }
-            case EMPLOYEE_UPDATED -> {
-                title = "Empleado actualizado";
+            case UPDATED -> {
+//                title = "Empleado actualizado";
                 message = String.format("Los datos de %s han sido actualizados por %s",
                         employeeName, triggeredBy);
             }
-            case EMPLOYEE_DELETED -> {
-                title = "Empleado eliminado";
+            case DELETED -> {
+//                title = "Empleado eliminado";
                 message = String.format("%s ha sido eliminado del sistema por %s",
                         employeeName, triggeredBy);
             }
             default -> {
-                title = "Evento de empleado";
+//                title = "Evento de empleado";
                 message = employeeName;
             }
         }
 
-        publish(type, title, message, "Employee", employeeId, triggeredBy);
+        publish(type, title, message, entityType, employeeId, triggeredBy);
     }
 
     /**
@@ -171,7 +171,7 @@ public class NotificationService implements NotificationAppService {
     private NotificationDto toDto(Notification n) {
         String navigateTo = null;
         if ("Employee".equals(n.getEntityType()) && n.getEntityId() != null
-                && n.getType() != NotificationType.EMPLOYEE_DELETED) {
+                && n.getType() != NotificationType.DELETED) {
             navigateTo = "/employees/" + n.getEntityId();
         }
 
