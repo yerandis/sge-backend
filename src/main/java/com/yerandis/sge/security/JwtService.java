@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -48,13 +49,30 @@ public class JwtService {
      * Genera el access token (24h).
      * Incluye los roles como claim adicional.
      */
+//    public String generateAccessToken(UserDetails userDetails) {
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put("roles", userDetails.getAuthorities()
+//                .stream()
+//                .map(a -> a.getAuthority())
+//                .toList());
+//        return buildToken(claims, userDetails.getUsername(), expirationMs);
+//    }
+
     public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", userDetails.getAuthorities()
+        claims.put("permissions", userDetails.getAuthorities()  // ← renombrar a "permissions"
                 .stream()
                 .map(a -> a.getAuthority())
                 .toList());
         return buildToken(claims, userDetails.getUsername(), expirationMs);
+    }
+
+    public List<String> extractPermissions(String token) {
+        Object perms = extractAllClaims(token).get("permissions");  // ← leer "permissions"
+        if (perms instanceof List<?> list) {
+            return (List<String>) list;
+        }
+        return List.of();
     }
 
     /**

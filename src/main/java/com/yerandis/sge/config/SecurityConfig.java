@@ -49,6 +49,7 @@ public class SecurityConfig {
             "/ws/**",
             "/api/v1/employees/**",
             "/api/v1/departments/**",
+            "/api/v1/roles/**",
     };
 
     /**
@@ -70,8 +71,10 @@ public class SecurityConfig {
                 // Reglas de autorización
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ROUTES).permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN")
+//                        .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                        // Los permisos granulares se verifican con @PreAuthorize en cada método
+                        // No es necesario configurarlos aquí route por route
                 )
 
                 // ══ JWT: política STATELESS ══════════════════════════

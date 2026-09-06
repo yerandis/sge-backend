@@ -4,9 +4,11 @@ import com.yerandis.sge.dto.enums.UserRole;
 import com.yerandis.sge.dto.request.security.LoginRequest;
 import com.yerandis.sge.dto.request.security.RegisterRequest;
 import com.yerandis.sge.dto.response.security.AuthResponse;
+import com.yerandis.sge.entity.admin.Role;
 import com.yerandis.sge.entity.system.Employee;
 import com.yerandis.sge.entity.admin.User;
 import com.yerandis.sge.exception.BusinessException;
+import com.yerandis.sge.repository.admin.RoleRepository;
 import com.yerandis.sge.repository.system.EmployeeRepository;
 import com.yerandis.sge.repository.admin.UserRepository;
 import com.yerandis.sge.security.JwtService;
@@ -20,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -45,6 +50,7 @@ public class AuthService implements AuthAppService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder      passwordEncoder;
     private final UserDetailsService   userDetailsService;
+    private final RoleRepository       roleRepository;
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
@@ -84,7 +90,7 @@ public class AuthService implements AuthAppService {
 
         user.setLastLogin(LocalDateTime.now());
         System.out.println("user = " + user.getUsername());
-        System.out.println("role = " + user.getRole());
+        System.out.println("role = " + user.getRoles());
         userRepository.save(user);
 
         return buildAuthResponse(user);
@@ -102,10 +108,14 @@ public class AuthService implements AuthAppService {
                     .orElseThrow(() -> new BusinessException("Empleado no encontrado"));
         }
 
+        Set<Role> defaultRoles = new HashSet<>();
+        roleRepository.findByIsDefaultTrue()
+                .ifPresent(defaultRoles::add);
+
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(UserRole.USER)
+                .roles(defaultRoles)
                 .employee(employee)
                 .active(true)
                 .build();
@@ -130,6 +140,17 @@ public class AuthService implements AuthAppService {
         String accessToken  = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
+        List<String> permissions = user.getAuthorities()
+                .stream()
+                .map(a -> a.getAuthority())
+                .toList();
+
+        List<String> roleNames = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .sorted()
+                .toList();
+
         UUID employeeId = user.getEmployee() != null ? user.getEmployee().getId() : null;
 
         return AuthResponse.builder()
@@ -140,7 +161,8 @@ public class AuthService implements AuthAppService {
                 .user(AuthResponse.UserInfo.builder()
                         .id(user.getId())
                         .username(user.getUsername())
-                        .role(user.getRole().name())
+                        .roles(roleNames)
+                        .permissions(permissions)
                         .employeeId(employeeId)
                         .build())
                 .build();

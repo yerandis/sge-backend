@@ -8,6 +8,7 @@ import com.yerandis.sge.exception.BusinessException;
 import com.yerandis.sge.exception.ResourceNotFoundException;
 import com.yerandis.sge.mapper.system.DepartmentMapper;
 import com.yerandis.sge.repository.system.DepartmentRepository;
+import com.yerandis.sge.service.serviceImpl.notification.NotificationService;
 import com.yerandis.sge.service.serviceInterface.system.DepartmentAppService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class DepartmentService implements DepartmentAppService {
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper     departmentMapper;
+    private final NotificationService  notificationService;
 
     //  Transactional(readOnly = true) -> este metodo no modifica datos
     @Override
@@ -57,6 +59,8 @@ public class DepartmentService implements DepartmentAppService {
 
         Department department = departmentMapper.toEntity(request);
         Department savedDepartment = departmentRepository.save(department);
+
+        // ← NUEVO: publicar notificación
 
         return departmentMapper.toResponse(savedDepartment);
 

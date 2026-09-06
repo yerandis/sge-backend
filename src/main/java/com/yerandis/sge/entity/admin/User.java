@@ -14,9 +14,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Implementa UserDetails para que Spring Security sepa cómo
@@ -45,9 +44,25 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private UserRole role;
+    /**
+     * Roles del usuario.
+     *
+     * Un usuario puede tener varios roles.
+     * Un rol puede estar asignado a varios usuarios.
+     *
+     * FetchType.EAGER: se cargan con el usuario porque Spring Security
+     * los necesita inmediatamente al autenticar.
+     *
+     * La tabla pivote es user_roles (a crear en el siguiente script SQL).
+     */
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", unique = true)
@@ -69,9 +84,28 @@ public class User implements UserDetails {
 
     // ── UserDetails ───────────────────────────────────────────────
 
+    /**
+     * getAuthorities(): REEMPLAZA el sistema anterior de ROLE_ADMIN/ROLE_USER.
+     *
+     * Ahora en lugar de devolver el rol como authority,
+     * devolvemos TODOS los permisos de TODOS los roles del usuario.
+     *
+     * Si el usuario tiene:
+     *   Rol "Responsable RRHH" → permisos: EMPLOYEE_READ, EMPLOYEE_CREATE, DEPARTMENT_READ
+     *   Rol "Analista" → permisos: EMPLOYEE_READ, REPORT_VIEW, REPORT_EXPORT
+     *
+     * getAuthorities() devuelve:
+     *   [EMPLOYEE_READ, EMPLOYEE_CREATE, DEPARTMENT_READ, REPORT_VIEW, REPORT_EXPORT]
+     *   (sin duplicados gracias al Set del stream)
+     *
+     * Spring Security verifica contra esta lista en @PreAuthorize("hasAuthority('X')")
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return roles.stream()
+                .flatMap(role -> role.getPermissions().stream())
+                .map(permission -> new SimpleGrantedAuthority(permission.getCode()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -120,13 +154,13 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
+//    public UserRole getRole() {
+//        return role;
+//    }
+//
+//    public void setRole(UserRole role) {
+//        this.role = role;
+//    }
 
     public Employee getEmployee() {
         return employee;

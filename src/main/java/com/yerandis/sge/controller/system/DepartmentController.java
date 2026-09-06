@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -35,6 +36,7 @@ public class DepartmentController {
 //    }
 
     @GetMapping
+//    @PreAuthorize("hasAuthority('DEPARTMENT_READ')")
     public ResponseEntity<ApiResponse<PageResponse<DepartmentResponse>>> findAll(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String name,
@@ -61,6 +63,7 @@ public class DepartmentController {
      */
 
     @GetMapping("/{id}")
+//    @PreAuthorize("hasAuthority('DEPARTMENT_READ')")
     public ResponseEntity<ApiResponse<DepartmentResponse>> findById(@PathVariable("id")UUID id){
 
         DepartmentResponse response = departmentAppService.findById(id);
@@ -76,6 +79,7 @@ public class DepartmentController {
      *
      * */
     @PostMapping
+//    @PreAuthorize("hasAuthority('DEPARTMENT_CREATE')")
     public ResponseEntity<ApiResponse<DepartmentResponse>> create(
             @Valid @RequestBody DepartmentRequest request){
 
@@ -91,6 +95,7 @@ public class DepartmentController {
      *
      * */
     @PutMapping("/{id}")
+//    @PreAuthorize("hasAuthority('DEPARTMENT_UPDATE')")
     public ResponseEntity<ApiResponse<DepartmentResponse>> update(
             @PathVariable("id") UUID id,
             @Valid @RequestBody DepartmentRequest request
@@ -105,6 +110,7 @@ public class DepartmentController {
      *
      * */
     @DeleteMapping("{id}")
+//    @PreAuthorize("hasAuthority('DEPARTMENT_DELETE')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable ("id") UUID id){
 
         departmentAppService.delete(id);
@@ -116,6 +122,7 @@ public class DepartmentController {
      * GET /api/v1/department/dashboard/stats
      * */
     @GetMapping("dashboard/stats")
+//    @PreAuthorize("hasAuthority('DEPARTMENT_READ')")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats(){
         Map<String, Long> stats = departmentAppService.getDashboardStats();
         return ResponseEntity.ok(ApiResponse.success("Estadisticas obtenidas: ", stats));
