@@ -54,7 +54,7 @@ public class NotificationService implements NotificationAppService {
      */
     @Transactional
     @Override
-    public void publishEvent(NotificationType type, String title, String employeeName, UUID employeeId, String entityType) {
+    public void publishEvent(NotificationType type, String title, String name, UUID entityId, String entityType) {
 
         String triggeredBy = getCurrentUsername();
 //        String title;
@@ -64,25 +64,25 @@ public class NotificationService implements NotificationAppService {
             case CREATED -> {
 //                title = "Nuevo empleado registrado";
                 message = String.format("%s ha sido añadido al sistema por %s",
-                        employeeName, triggeredBy);
+                        name, triggeredBy);
             }
             case UPDATED -> {
 //                title = "Empleado actualizado";
                 message = String.format("Los datos de %s han sido actualizados por %s",
-                        employeeName, triggeredBy);
+                        name, triggeredBy);
             }
             case DELETED -> {
 //                title = "Empleado eliminado";
                 message = String.format("%s ha sido eliminado del sistema por %s",
-                        employeeName, triggeredBy);
+                        name, triggeredBy);
             }
             default -> {
 //                title = "Evento de empleado";
-                message = employeeName;
+                message = name;
             }
         }
 
-        publish(type, title, message, entityType, employeeId, triggeredBy);
+        publish(type, title, message, entityType, entityId, triggeredBy);
     }
 
     /**

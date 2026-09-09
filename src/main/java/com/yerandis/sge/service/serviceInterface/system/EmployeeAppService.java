@@ -2,10 +2,12 @@ package com.yerandis.sge.service.serviceInterface.system;
 
 import com.yerandis.sge.dto.enums.EmployeeStatus;
 import com.yerandis.sge.dto.request.system.EmployeeRequest;
+import com.yerandis.sge.dto.response.system.EmployeeHistoryResponse;
 import com.yerandis.sge.dto.response.system.EmployeeResponse;
 import com.yerandis.sge.dto.response.admin.PageResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,4 +41,6 @@ public interface EmployeeAppService {
 
     // Para el Dashboard
     Map<String, Long> getDashboardStats();
+
+    List<EmployeeHistoryResponse> getHistory(UUID id);
 }

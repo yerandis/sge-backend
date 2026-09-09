@@ -3,6 +3,8 @@ package com.yerandis.sge.service.serviceImpl.system;
 import com.yerandis.sge.dto.enums.EmployeeStatus;
 import com.yerandis.sge.dto.enums.NotificationType;
 import com.yerandis.sge.dto.request.system.EmployeeRequest;
+import com.yerandis.sge.dto.response.system.Changes;
+import com.yerandis.sge.dto.response.system.EmployeeHistoryResponse;
 import com.yerandis.sge.dto.response.system.EmployeeResponse;
 import com.yerandis.sge.dto.response.admin.PageResponse;
 import com.yerandis.sge.entity.notification.Notification;
@@ -11,20 +13,22 @@ import com.yerandis.sge.entity.system.Employee;
 import com.yerandis.sge.exception.BusinessException;
 import com.yerandis.sge.exception.ResourceNotFoundException;
 import com.yerandis.sge.mapper.system.EmployeeMapper;
+//import com.yerandis.sge.repository.system.AuditLogRepository;
 import com.yerandis.sge.repository.system.DepartmentRepository;
 import com.yerandis.sge.repository.system.EmployeeRepository;
 import com.yerandis.sge.service.serviceImpl.notification.NotificationService;
 import com.yerandis.sge.service.serviceInterface.notification.NotificationAppService;
 import com.yerandis.sge.service.serviceInterface.system.EmployeeAppService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.audit.AuditLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @Service: Spring registra esta clase como un bean de servicio.
@@ -42,10 +46,11 @@ public class EmployeeService implements EmployeeAppService {
 
     private static final String ENTITY_TYPE = "Employee";
 
-    private final EmployeeRepository employeeRepository;
-    private final DepartmentRepository departmentRepository;
-    private final EmployeeMapper employeeMapper;
-    private final NotificationService notificationService;
+    private final EmployeeRepository    employeeRepository;
+    private final DepartmentRepository  departmentRepository;
+    private final EmployeeMapper        employeeMapper;
+    private final NotificationService   notificationService;
+//    private final AuditLogRepository    auditLogRepository;
 
     /**
      * @Transactional(readOnly = true): indica que este método no modifica datos.
@@ -178,5 +183,56 @@ public class EmployeeService implements EmployeeAppService {
         stats.put("inactiveEmployees", employeeRepository.countByStatus(EmployeeStatus.INACTIVE));
         stats.put("totalDepartments", departmentRepository.count());
         return stats;
+    }
+
+    @Override
+    public List<EmployeeHistoryResponse> getHistory(UUID id) {
+
+//        List<AuditLog> logs = auditLogRepository
+//                .findByEntityTypeAndEntityIdOrderByCreatedAtDesc(ENTITY_TYPE, id);
+
+        List<EmployeeHistoryResponse> history = List.of();
+//                = logs.stream()
+//                .map(log -> {
+//                    List<Changes> changes = parseChanges(log.getOldValue(), log.getNewValue());
+//                    return new EmployeeHistoryResponse(
+//                            log.getId(),
+//                            log.getAction(),
+//                            log.getUsername(),
+//                            changes,
+//                            log.getCreatedAt()
+//                    );
+//                }).toList();
+
+        return history;
+    }
+
+    /**
+     * Compara old_value y new_value (JSON strings) campo a campo.
+     * Devuelve solo los campos que cambiaron.
+     */
+    private List<Changes> parseChanges(String oldJson, String newJson) {
+
+        if (oldJson == null || newJson == null) return List.of();
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> oldMap = mapper.readValue(oldJson, new TypeReference<>() {});
+            Map<String, Object> newMap = mapper.readValue(newJson, new TypeReference<>() {});
+
+            return oldMap.entrySet().stream()
+                    .filter(entry -> {
+                        Object newVal = newMap.get(entry.getKey());
+                        return !Objects.equals(entry.getValue(), newVal);
+                    })
+                    .map(entry -> new Changes(
+                            entry.getKey(),
+                            String.valueOf(entry.getValue()),
+                            String.valueOf(newMap.get(entry.getKey()))
+                    ))
+                    .toList();
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 }

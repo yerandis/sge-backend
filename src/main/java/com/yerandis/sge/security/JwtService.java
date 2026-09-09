@@ -5,6 +5,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -58,22 +59,63 @@ public class JwtService {
 //        return buildToken(claims, userDetails.getUsername(), expirationMs);
 //    }
 
+//    public String generateAccessToken(UserDetails userDetails) {
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put("permissions", userDetails.getAuthorities()  // ← renombrar a "permissions"
+//                .stream()
+//                .map(a -> a.getAuthority())
+//                .toList());
+//        return buildToken(claims, userDetails.getUsername(), expirationMs);
+//    }
     public String generateAccessToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("permissions", userDetails.getAuthorities()  // ← renombrar a "permissions"
+
+        List<String> permissions = userDetails.getAuthorities()
                 .stream()
-                .map(a -> a.getAuthority())
-                .toList());
-        return buildToken(claims, userDetails.getUsername(), expirationMs);
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        System.out.println("========== GENERANDO JWT ==========");
+        System.out.println("USER: " + userDetails.getUsername());
+        System.out.println("PERMISSIONS: " + permissions);
+        System.out.println("===================================");
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("permissions", permissions);
+
+        return buildToken(
+                claims,
+                userDetails.getUsername(),
+                expirationMs
+        );
     }
 
-    public List<String> extractPermissions(String token) {
-        Object perms = extractAllClaims(token).get("permissions");  // ← leer "permissions"
-        if (perms instanceof List<?> list) {
-            return (List<String>) list;
-        }
-        return List.of();
+//    public List<String> extractPermissions(String token) {
+//        Object perms = extractAllClaims(token).get("permissions");  // ← leer "permissions"
+//        if (perms instanceof List<?> list) {
+//            return (List<String>) list;
+//        }
+//        return List.of();
+//    }
+public List<String> extractPermissions(String token) {
+
+    Object perms = extractAllClaims(token).get("permissions");
+
+    List<String> permissions;
+
+    if (perms instanceof List<?> list) {
+        permissions = list.stream()
+                .map(String::valueOf)
+                .toList();
+    } else {
+        permissions = List.of();
     }
+
+    System.out.println("========== JWT LEÍDO ==========");
+    System.out.println("PERMISSIONS: " + permissions);
+    System.out.println("===============================");
+
+    return permissions;
+}
 
     /**
      * Genera el refresh token (7 días).

@@ -29,13 +29,14 @@ import java.util.stream.Collectors;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-//@NoArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class User implements UserDetails {
 
     @Id
-    @UuidGenerator
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -44,6 +45,17 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false, length = 50, name = "first_name")
+    private String firstName;
+
+    @Column(nullable = false, length = 50, name = "last_name")
+    private String lastName;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
     /**
      * Roles del usuario.
      *
@@ -100,12 +112,30 @@ public class User implements UserDetails {
      *
      * Spring Security verifica contra esta lista en @PreAuthorize("hasAuthority('X')")
      */
+//    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+//        return roles.stream()
+//                .flatMap(role -> role.getPermissions().stream())
+//                .map(permission -> new SimpleGrantedAuthority(permission.getCode()))
+//                .collect(Collectors.toSet());
+//    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
+
+        Collection<? extends GrantedAuthority> authorities = roles.stream()
                 .flatMap(role -> role.getPermissions().stream())
                 .map(permission -> new SimpleGrantedAuthority(permission.getCode()))
                 .collect(Collectors.toSet());
+
+        System.out.println("==========================================");
+        System.out.println("USER: " + username);
+        System.out.println("ROLES: " + roles.stream()
+                .map(Role::getName)
+                .toList());
+        System.out.println("AUTHORITIES: " + authorities);
+        System.out.println("==========================================");
+
+        return authorities;
     }
 
     @Override
@@ -127,8 +157,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return active;
     }
-
-    public User() {}
 
     public UUID getId() {
         return id;

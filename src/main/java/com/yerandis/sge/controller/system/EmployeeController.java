@@ -2,6 +2,7 @@ package com.yerandis.sge.controller.system;
 
 import com.yerandis.sge.dto.request.system.EmployeeRequest;
 import com.yerandis.sge.dto.response.admin.ApiResponse;
+import com.yerandis.sge.dto.response.system.EmployeeHistoryResponse;
 import com.yerandis.sge.dto.response.system.EmployeeResponse;
 import com.yerandis.sge.dto.response.admin.PageResponse;
 import com.yerandis.sge.dto.enums.EmployeeStatus;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -143,5 +145,15 @@ public class EmployeeController {
     public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats() {
         Map<String, Long> stats = employeeAppService.getDashboardStats();
         return ResponseEntity.ok(ApiResponse.success("Estadísticas obtenidas", stats));
+    }
+
+    @GetMapping("/{id}/history")
+//    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
+    public ResponseEntity<ApiResponse<List<EmployeeHistoryResponse>>> getHistory(
+            @PathVariable UUID id) {
+
+        List<EmployeeHistoryResponse> history = employeeAppService.getHistory(id);
+
+        return ResponseEntity.ok(ApiResponse.success("Historial obtenido", history));
     }
 }
