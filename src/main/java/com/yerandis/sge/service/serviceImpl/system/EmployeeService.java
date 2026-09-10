@@ -7,6 +7,7 @@ import com.yerandis.sge.dto.response.system.Changes;
 import com.yerandis.sge.dto.response.system.EmployeeHistoryResponse;
 import com.yerandis.sge.dto.response.system.EmployeeResponse;
 import com.yerandis.sge.dto.response.admin.PageResponse;
+import com.yerandis.sge.entity.admin.AuditLog;
 import com.yerandis.sge.entity.notification.Notification;
 import com.yerandis.sge.entity.system.Department;
 import com.yerandis.sge.entity.system.Employee;
@@ -14,13 +15,13 @@ import com.yerandis.sge.exception.BusinessException;
 import com.yerandis.sge.exception.ResourceNotFoundException;
 import com.yerandis.sge.mapper.system.EmployeeMapper;
 //import com.yerandis.sge.repository.system.AuditLogRepository;
+import com.yerandis.sge.repository.system.AuditLogRepository;
 import com.yerandis.sge.repository.system.DepartmentRepository;
 import com.yerandis.sge.repository.system.EmployeeRepository;
 import com.yerandis.sge.service.serviceImpl.notification.NotificationService;
 import com.yerandis.sge.service.serviceInterface.notification.NotificationAppService;
 import com.yerandis.sge.service.serviceInterface.system.EmployeeAppService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.audit.AuditLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class EmployeeService implements EmployeeAppService {
     private final DepartmentRepository  departmentRepository;
     private final EmployeeMapper        employeeMapper;
     private final NotificationService   notificationService;
-//    private final AuditLogRepository    auditLogRepository;
+    private final AuditLogRepository auditLogRepository;
 
     /**
      * @Transactional(readOnly = true): indica que este método no modifica datos.
@@ -186,49 +187,42 @@ public class EmployeeService implements EmployeeAppService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmployeeHistoryResponse> getHistory(UUID id) {
+        // Verificar que el empleado existe
+        if (!employeeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Empleado", id);
+        }
 
-//        List<AuditLog> logs = auditLogRepository
-//                .findByEntityTypeAndEntityIdOrderByCreatedAtDesc(ENTITY_TYPE, id);
+        List<AuditLog> logs = auditLogRepository
+                .findByEntityTypeAndEntityIdOrderByCreatedAtDesc(ENTITY_TYPE, id);
 
-        List<EmployeeHistoryResponse> history = List.of();
-//                = logs.stream()
-//                .map(log -> {
-//                    List<Changes> changes = parseChanges(log.getOldValue(), log.getNewValue());
-//                    return new EmployeeHistoryResponse(
-//                            log.getId(),
-//                            log.getAction(),
-//                            log.getUsername(),
-//                            changes,
-//                            log.getCreatedAt()
-//                    );
-//                }).toList();
-
-        return history;
+        return logs.stream()
+                .map(log -> new EmployeeHistoryResponse(
+                        log.getId(),
+                        log.getAction(),
+                        log.getUsername(),
+                        parseChanges(log.getOldValue(), log.getNewValue()),
+                        log.getCreatedAt()
+                ))
+                .toList();
     }
 
-    /**
-     * Compara old_value y new_value (JSON strings) campo a campo.
-     * Devuelve solo los campos que cambiaron.
-     */
     private List<Changes> parseChanges(String oldJson, String newJson) {
-
         if (oldJson == null || newJson == null) return List.of();
-
         try {
             ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> oldMap = mapper.readValue(oldJson, new TypeReference<>() {});
-            Map<String, Object> newMap = mapper.readValue(newJson, new TypeReference<>() {});
+            Map<String, Object> oldMap = mapper.readValue(oldJson, new TypeReference<>() {
+            });
+            Map<String, Object> newMap = mapper.readValue(newJson, new TypeReference<>() {
+            });
 
             return oldMap.entrySet().stream()
-                    .filter(entry -> {
-                        Object newVal = newMap.get(entry.getKey());
-                        return !Objects.equals(entry.getValue(), newVal);
-                    })
+                    .filter(entry -> !Objects.equals(entry.getValue(), newMap.get(entry.getKey())))
                     .map(entry -> new Changes(
                             entry.getKey(),
                             String.valueOf(entry.getValue()),
-                            String.valueOf(newMap.get(entry.getKey()))
+                            String.valueOf(newMap.getOrDefault(entry.getKey(), ""))
                     ))
                     .toList();
         } catch (Exception e) {
