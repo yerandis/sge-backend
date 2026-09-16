@@ -85,11 +85,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 // Extraer datos directamente del payload del JWT
-                String username = jwtService.extractUsername(jwt);
-                List<String> roles = jwtService.extractRoles(jwt);
+                String          username    = jwtService.extractUsername(jwt);
+                List<String>    permissions = jwtService.extractPermissions(jwt);
+//                List<String> roles = jwtService.extractRoles(jwt);
 
                 // Convertir los roles del JWT a GrantedAuthority
-                List<SimpleGrantedAuthority> authorities = roles.stream()
+                List<SimpleGrantedAuthority> authorities = permissions.stream()
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 

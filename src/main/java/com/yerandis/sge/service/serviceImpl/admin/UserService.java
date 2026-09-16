@@ -67,20 +67,20 @@ public class UserService implements UserAppService {
     public UserResponse create(UserRequest request) {
         // Validación: username único
         if (userRepository.existsByUsername(request.getUsername().trim().toLowerCase())) {
-            throw new BusinessException(
+            throw new BusinessException("",
                     "Ya existe un usuario con el nombre: " + request.getUsername()
             );
         }
 
         //  Validacion: email unico.
         if (userRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
-            throw new BusinessException("Ya existe un usuario con el email: " + request.getEmail()
+            throw new BusinessException("", "Ya existe un usuario con el email: " + request.getEmail()
             );
         }
 
         // Validación: la contraseña es obligatoria al crear
         if (request.getPassword() == null || request.getPassword().isBlank()) {
-            throw new BusinessException("La contraseña es obligatoria al crear un usuario");
+            throw new BusinessException("", "La contraseña es obligatoria al crear un usuario");
         }
 
         // Construir la entidad base
@@ -96,7 +96,7 @@ public class UserService implements UserAppService {
         // Vincular empleado si se especificó
         if (request.getEmployeeId() != null) {
             Employee employee = employeeRepository.findById(request.getEmployeeId())
-                    .orElseThrow(() -> new BusinessException(
+                    .orElseThrow(() -> new BusinessException("",
                             "Empleado no encontrado con ID: " + request.getEmployeeId()
                     ));
             user.setEmployee(employee);
@@ -127,7 +127,7 @@ public class UserService implements UserAppService {
         String newUsername = request.getUsername().trim().toLowerCase();
         if (!user.getUsername().equals(newUsername) &&
                 userRepository.existsByUsername(newUsername)) {
-            throw new BusinessException(
+            throw new BusinessException("",
                     "Ya existe otro usuario con el nombre: " + request.getUsername()
             );
         }
@@ -146,7 +146,7 @@ public class UserService implements UserAppService {
         // Actualizar empleado vinculado
         if (request.getEmployeeId() != null) {
             Employee employee = employeeRepository.findById(request.getEmployeeId())
-                    .orElseThrow(() -> new BusinessException(
+                    .orElseThrow(() -> new BusinessException("",
                             "Empleado no encontrado con ID: " + request.getEmployeeId()
                     ));
             user.setEmployee(employee);
@@ -228,7 +228,7 @@ public class UserService implements UserAppService {
 
         // Verificar que todos los IDs solicitados existen
         if (found.size() != roleIds.size()) {
-            throw new BusinessException("Uno o más roles especificados no existen en el sistema");
+            throw new BusinessException("", "Uno o más roles especificados no existen en el sistema");
         }
 
         return new HashSet<>(found);

@@ -93,7 +93,7 @@ public class EmployeeService implements EmployeeAppService {
     public EmployeeResponse create(EmployeeRequest request) {
         // Validación de negocio: el email debe ser único
         if (employeeRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
-            throw new BusinessException("Ya existe un empleado con el email: " + request.getEmail()
+            throw new BusinessException("", "Ya existe un empleado con el email: " + request.getEmail()
             );
         }
 
@@ -131,7 +131,7 @@ public class EmployeeService implements EmployeeAppService {
         String newEmail = request.getEmail().trim().toLowerCase();
         if (!employee.getEmail().equals(newEmail) &&
                 employeeRepository.existsByEmailAndIdNot(newEmail, id)) {
-            throw new BusinessException(
+            throw new BusinessException("",
                     "Ya existe otro empleado con el email: " + request.getEmail()
             );
         }

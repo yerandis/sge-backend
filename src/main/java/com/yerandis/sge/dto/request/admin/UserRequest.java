@@ -32,7 +32,6 @@ public class UserRequest {
      * El servicio la hashea con BCrypt antes de guardarla.
      * En actualizaciones: si viene null o vacío, NO se cambia la contraseña.
      */
-    @Size(min = 8, max = 100, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
 
     @NotBlank(message = "El email es requerido")

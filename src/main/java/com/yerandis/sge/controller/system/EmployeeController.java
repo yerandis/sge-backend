@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,7 +49,7 @@ public class EmployeeController {
      * Si no se envían, son null y el servicio maneja ese caso.
      */
     @GetMapping
-//    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
     public ResponseEntity<ApiResponse<PageResponse<EmployeeResponse>>> findAll(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
@@ -87,7 +88,7 @@ public class EmployeeController {
      * @PathVariable: extrae el {id} de la URL.
      */
     @GetMapping("/{id}")
-//    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
     public ResponseEntity<ApiResponse<EmployeeResponse>> findById(@PathVariable UUID id) {
         EmployeeResponse employee = employeeAppService.findById(id);
         return ResponseEntity.ok(ApiResponse.success("Empleado obtenido exitosamente ", employee));
@@ -102,7 +103,7 @@ public class EmployeeController {
      * que el GlobalExceptionHandler captura.
      */
     @PostMapping
-//    @PreAuthorize("hasAuthority('EMPLOYEE_CREATE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_CREATE')")
     public ResponseEntity<ApiResponse<EmployeeResponse>> create(
             @Valid @RequestBody EmployeeRequest request) {
 
@@ -117,7 +118,7 @@ public class EmployeeController {
      * Actualización completa del recurso.
      */
     @PutMapping("/{id}")
-//    @PreAuthorize("hasAuthority('EMPLOYEE_UPDATE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_UPDATE')")
     public ResponseEntity<ApiResponse<EmployeeResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeRequest request) {
@@ -131,7 +132,7 @@ public class EmployeeController {
      * 204 No Content: operación exitosa, sin body en la respuesta.
      */
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAuthority('EMPLOYEE_DELETE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_DELETE')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
         employeeAppService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -141,14 +142,14 @@ public class EmployeeController {
      * GET /api/v1/employees/dashboard/stats
      */
     @GetMapping("/dashboard/stats")
-//    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getDashboardStats() {
         Map<String, Long> stats = employeeAppService.getDashboardStats();
         return ResponseEntity.ok(ApiResponse.success("Estadísticas obtenidas", stats));
     }
 
     @GetMapping("/{id}/history")
-//    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
     public ResponseEntity<ApiResponse<List<EmployeeHistoryResponse>>> getHistory(
             @PathVariable UUID id) {
 

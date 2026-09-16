@@ -57,7 +57,7 @@ public class RoleService implements RoleAppService {
     public RoleResponse createRole(RoleRequest request) {
         // Verificar nombre único
         if (roleRepository.existsByName(request.getName())) {
-            throw new BusinessException("Ya existe un rol con el nombre: " + request.getName());
+            throw new BusinessException("", "Ya existe un rol con el nombre: " + request.getName());
         }
 
         // Si este rol se marca como default, quitar el default del anterior
@@ -102,7 +102,7 @@ public class RoleService implements RoleAppService {
 
         // Verificar nombre único (excluyendo el rol actual)
         if (roleRepository.existsByNameAndIdNot(request.getName(), id)) {
-            throw new BusinessException("Ya existe otro rol con el nombre: " + request.getName());
+            throw new BusinessException("", "Ya existe otro rol con el nombre: " + request.getName());
         }
 
         // Gestionar el flag default

@@ -146,13 +146,13 @@ public List<String> extractPermissions(String token) {
     }
 
     @SuppressWarnings("unchecked")
-    public java.util.List<String> extractRoles(String token) {
-        Object roles = extractAllClaims(token).get("roles");
-        if (roles instanceof java.util.List<?> list) {
-            return (java.util.List<String>) list;
-        }
-        return java.util.List.of();
-    }
+//    public java.util.List<String> extractRoles(String token) {
+//        Object roles = extractAllClaims(token).get("roles");
+//        if (roles instanceof java.util.List<?> list) {
+//            return (java.util.List<String>) list;
+//        }
+//        return java.util.List.of();
+//    }
 
     // ── Validación ────────────────────────────────────────────────
 

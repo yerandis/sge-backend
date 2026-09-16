@@ -10,7 +10,16 @@ package com.yerandis.sge.exception;
  */
 public class BusinessException extends RuntimeException {
 
-    public BusinessException(String message) {
+//    public BusinessException(String message) {
+//        super(message);
+//    }
+
+    private final String code;
+
+    public BusinessException(String code, String message) {
         super(message);
+        this.code = code;
     }
+
+    public String getCode() { return code; }
 }

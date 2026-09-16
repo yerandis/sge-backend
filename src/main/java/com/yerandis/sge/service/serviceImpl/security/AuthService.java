@@ -14,7 +14,10 @@ import com.yerandis.sge.repository.admin.UserRepository;
 import com.yerandis.sge.security.JwtService;
 import com.yerandis.sge.service.serviceInterface.security.AuthAppService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +45,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService implements AuthAppService {
 
     private final UserRepository       userRepository;
@@ -54,58 +58,43 @@ public class AuthService implements AuthAppService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-/***                Error de autenticacion                           ***/
-//        Error de credenciales q hay q resolver (sucede cuando habilito este try/catch):
-//        Error: org.springframework.security.authentication.BadCredentialsException: Bad credentials
-//        2026-07-26T17:59:56.341-04:00  WARN 19228 --- [sge-backend] [nio-8080-exec-2]
-//        .m.m.a.ExceptionHandlerExceptionResolver :
-//        Resolved [com.yerandis.sge.exception.BusinessException: Credenciales inv�lidas]
+        try {
+            // 1) Delega en DaoAuthenticationProvider:
+            //    carga el usuario y compara la contraseña con BCrypt.
+            //    Si falla, lanza BadCredentialsException.
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
 
+            User user = (User) userDetailsService.loadUserByUsername(request.getUsername());
+            user.setLastLogin(LocalDateTime.now());
+            userRepository.save(user);
 
-//        try {
-//            /**
-//             * authenticate() delega en DaoAuthenticationProvider (ApplicationConfig):
-//             * 1. Llama userDetailsService.loadUserByUsername(username)
-//             * 2. Compara la contraseña con BCrypt
-//             * 3. Si falla → BadCredentialsException
-//             */
-//
-//            System.out.println("username = " + request.getUsername());
-//            System.out.println("password = " + request.getPassword());
-//            authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(
-//                            request.getUsername(),
-//                            request.getPassword()
-//                    )
-//            );
-//        } catch (AuthenticationException e) {
-//            // Mensaje genérico: no revelar si el usuario existe o no
-//            System.err.println("Error: " + e);
-//            throw new BusinessException("Credenciales inválidas");
-//        }
+            log.info("!!!!!Login exitoso: usuario={}", user.getUsername());
+            return buildAuthResponse(user);
 
-        // Cargar el usuario para generar el token con sus datos completos
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        User user = (User) userDetails;
-
-        user.setLastLogin(LocalDateTime.now());
-        System.out.println("user = " + user.getUsername());
-        System.out.println("role = " + user.getRoles());
-        userRepository.save(user);
-
-        return buildAuthResponse(user);
+        } catch (AuthenticationException e) {
+            // Log interno con detalle, mensaje genérico al cliente
+            // (nunca reveles si el usuario existe o no)
+            log.warn("-----Intento de login fallido para usuario '{}': {}",
+                    request.getUsername(), e.getMessage());
+            throw new BusinessException("", "Usuario o contraseña incorrecta");
+        }
     }
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BusinessException("El usuario '" + request.getUsername() + "' ya existe");
+            throw new BusinessException("", "El usuario '" + request.getUsername() + "' ya existe");
         }
 
         Employee employee = null;
         if (request.getEmployeeId() != null) {
             employee = employeeRepository.findById(request.getEmployeeId())
-                    .orElseThrow(() -> new BusinessException("Empleado no encontrado"));
+                    .orElseThrow(() -> new BusinessException("", "Empleado no encontrado"));
         }
 
         Set<Role> defaultRoles = new HashSet<>();
@@ -126,7 +115,7 @@ public class AuthService implements AuthAppService {
 
     public AuthResponse refreshToken(String refreshTokenValue) {
         if (!jwtService.isTokenValid(refreshTokenValue)) {
-            throw new BusinessException("Token de refresco inválido o expirado");
+            throw new BusinessException("", "Token de refresco inválido o expirado");
         }
 
         String username = jwtService.extractUsername(refreshTokenValue);

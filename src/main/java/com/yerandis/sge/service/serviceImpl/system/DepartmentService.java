@@ -57,7 +57,7 @@ public class DepartmentService implements DepartmentAppService {
 
         // validando el nombre, debe ser unico
         if (departmentRepository.existsByName(request.getName().trim().toLowerCase())){
-            throw new BusinessException("Ya existe un departamento con el nombre " + request.getName());
+            throw new BusinessException("", "Ya existe un departamento con el nombre " + request.getName());
         }
 
         Department department = departmentMapper.toEntity(request);

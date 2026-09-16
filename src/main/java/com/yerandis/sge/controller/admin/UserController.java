@@ -25,6 +25,7 @@ public class UserController {
         private final UserAppService userAppService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('USER_READ')")
     public ResponseEntity<ApiResponse<PageResponse<UserResponse>>> findAll(
             @RequestParam (required = false)            String  search,
             @RequestParam (defaultValue = "0")          int     page,
@@ -50,6 +51,7 @@ public class UserController {
      * @PathVariable: extrae el id de la URL
      * */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER_READ')")
     public ResponseEntity<ApiResponse<UserResponse>> findById(
             @PathVariable ("id")UUID id
             ){
@@ -63,6 +65,7 @@ public class UserController {
      *
      * */
     @PostMapping
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     public ResponseEntity<ApiResponse<UserResponse>> create(
             @Valid @RequestBody UserRequest request
     ){
@@ -77,6 +80,7 @@ public class UserController {
      * @Body
      * */
     @PutMapping("{id}")
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<ApiResponse<UserResponse>> update(
             @PathVariable("id")UUID id,
             @Valid @RequestBody UserRequest request
@@ -91,13 +95,14 @@ public class UserController {
      * DELETE /api/v1/users/{id}
      * */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") UUID id){
         userAppService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{id}/toggle-active")
-//    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<ApiResponse<UserResponse>> toggleActive(@PathVariable UUID id) {
         return ResponseEntity.ok(
                 ApiResponse.success("Estado actualizado", userAppService.toggleActive(id))
