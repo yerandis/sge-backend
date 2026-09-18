@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -97,4 +99,9 @@ FROM Employee e
 JOIN FETCH e.department
 """)
     Page<Employee> searchEmployees(Pageable pageable);
+
+    long countByHireDateAfter(LocalDate date);
+
+    @Query("SELECT e.hireDate FROM Employee e WHERE e.hireDate >= :from")
+    List<LocalDate> findHireDatesFrom(@Param("from") LocalDate from);
 }
